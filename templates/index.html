@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+	<title>HOUSE PRICE</title>
+	<!-- Google font -->
+	<link href="https://fonts.googleapis.com/css?family=PT+Sans:400" rel="stylesheet">
+	<!-- Bootstrap -->
+	<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css" />
+	<!-- Custom stlylesheet -->
+	<link type="text/css" rel="stylesheet" href="css/style.css" />
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<!-- Bootstrap Datepicker CSS -->
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="centered">
+	<div id="booking">
+		<div class="container">
+			<div class="row">
+				<div class="booking-form text-center">
+					<h3 style="color: white; font-family: 'PT Sans', sans-serif;text-transform: uppercase;">House Price Prediction</h3>
+					<div id="prediction-text" class="prediction-box">{{prediction_text}}</div>
+					<form action="/predict" method="post">
+						<div class="row">
+							<div class="col-md-4">
+								<div class="form-group">
+									<span class="form-label" for="GrLivArea">living area (sq feet)</span>
+									<input class="form-control" type="number" min="330" max="5650" id="GrLivArea"
+										name="GrLivArea" required="required" placeholder="330-5650">
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<span class="form-label" for="BsmtFinSF1">Basement Finish Area
+										(sq-feet)</span>
+									<input class="form-control" type="number" min="0" max="5650" id="BsmtFinSF1"
+										name="BsmtFinSF1" required="required" placeholder="0-5650">
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<span class="form-label" for="LotArea">Lot Area (sq feet)</span>
+									<input class="form-control" type="number" min="1300" max="215245" id="LotArea" name="LotArea"
+										required="required" placeholder="1300-215245">
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-4">
+								<div class="form-group">
+									<span class="form-label" for="TotalBsmtSF">Total Basement Area (sq feet)</span>
+									<input class="form-control" type="number" min="0" max="6110" id="TotalBsmtSF" name="TotalBsmtSF"
+										required="required" placeholder="0-6110">
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<span class="form-label" for="GarageArea">GarageArea (sq feet)</span>
+									<input class="form-control" type="number" min="0" max="1418" id="GarageArea" name="GarageArea"
+										required="required" placeholder="0-1418">
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<span class="form-label" for="firstFlrSF">First Floor (sq feet)</span>
+									<input class="form-control" type="number"  min="334" max="4692" id="firstFlrSF" name="firstFlrSF"
+										required="required" placeholder="334-4692">
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-4">
+								<div class="form-group">
+									<span class="form-label" for="GarageType">Garage location</span>
+									<select class="form-control" id="GarageType" name="GarageType" required="required"
+										placeholder="choose">
+										<option value="0">More than one type of garage</option>
+										<option value="1">Attached to home</option>
+										<option value="2">Basement Garage</option>
+										<option value="3">Built-In (Garage part of house)</option>
+										<option value="4">Car Port</option>
+										<option value="5">Detached from home</option>
+										<option value="6">No Garage</option>
+									</select>
+									<span class="select-arrow"></span>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<span class="form-label" for="GarageCars">Size of garage in car capacity</span>
+									<select class="form-control" id="GarageCars" name="GarageCars" required="required"
+										placeholder="0-5">
+										<option value="0">0</option>
+										<option value="1">1</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+									</select>
+									<span class="select-arrow"></span>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<span class="form-label" for="OverallQual">Overall Quality</span>
+									<select class="form-control" id="OverallQual" name="OverallQual"
+										required="required">
+										<option value="1">Very Poor</option>
+										<option value="2">Poor</option>
+										<option value="3">Fair</option>
+										<option value="4">Below Average</option>
+										<option value="5">Average</option>
+										<option value="6">Above Average</option>
+										<option value="7">Good</option>
+										<option value="8">Very Good</option>
+										<option value="9">Excellent</option>
+										<option value="10">Very Excellent</option>
+									</select>
+									<span class="select-arrow"></span>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-4">
+								<div class="form-group">
+									<span class="form-label" for="YearBuilt">Year Built</span>
+									<input class="form-control" type="number" name="YearBuilt" id="datepicker"
+										placeholder="Select Year" required>
+									<span class="select-arrow"></span>
+									<!-- Bootstrap JS -->
+									<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+									<script
+										src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+									<script
+										src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+									<!-- Bootstrap Datepicker JS -->
+									<script
+										src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+									<script>
+										$(document).ready(function () {
+											$('#datepicker').datepicker({
+												format: "yyyy",
+												viewMode: "years",
+												minViewMode: "years",
+												startDate: '1872',
+												endDate: '2010'
+											});
+										});
+									</script>
+								</div>
+							</div>
+							<div class="col-md-4">
+								<div class="form-btn">
+									<button class="submit-btn">Submit</button>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+
+</html>
