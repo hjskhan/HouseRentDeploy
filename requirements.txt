@@ -3,5 +3,9 @@ flask
 numpy
 pandas
 gunicorn
+seaborn
 pip
 scikit-learn
+dill
+catboost
+-e .
