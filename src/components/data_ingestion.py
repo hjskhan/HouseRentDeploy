@@ -1,7 +1,7 @@
 import os, sys
 from src.exception import CustomException
 from src.logger import logging
-from src.components.data_transformation import DataTransformer, DataTransformerConfig
+from src.components.data_transformation import DataTransformer
 
 import pandas as pd
 import numpy as np
@@ -37,11 +37,3 @@ class DataIngestion:
         except Exception as e:
             raise CustomException(e, sys)
     
-if __name__=='__main__':
-    obj = DataIngestion()
-    train_data, test_data = obj.initiate()
-
-    data_transf = DataTransformer()
-    train_data_arr, test_data_arr, _ = data_transf.initiate_transf(train_data, test_data)
-
-

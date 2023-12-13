@@ -8,4 +8,4 @@ pip
 scikit-learn
 dill
 catboost
--e .
+# -e .

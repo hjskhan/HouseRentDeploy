@@ -71,7 +71,6 @@ class DataTransformer:
             data_nom_enc = data[['Street', 'Neighborhood', 'BldgType', 'HouseStyle', 'RoofStyle',
                                 'RoofMatl', 'Exterior1st', 'Exterior2nd', 'MasVnrType', 'Heating',
                                 'GarageType', 'MiscFeature', 'SaleType', 'SaleCondition']]
-            # data_nom_enc = data[data_nom_enc]
             # Encoding the Nominal Data
             from sklearn.preprocessing import LabelEncoder
             le = LabelEncoder()
@@ -163,20 +162,23 @@ class DataTransformer:
 
             preprocessor = self.custom_pipe()
 
-            train_arr = preprocessor.fit_transform(train)
-            test_arr = preprocessor.fit_transform(test)
+            train = preprocessor.fit_transform(train)
+            test = preprocessor.fit_transform(test)
 
             y_train = train['SalePrice'] #target Variable
             y_test = test['SalePrice']
+
+
             train.drop('SalePrice',axis=1,inplace=True)
             test.drop('SalePrice',axis=1,inplace=True)
+
 
             save_object(
                 file_path=self.data_transf_confg.preprocessor_obj_file_path,
                 obj=preprocessor
             )
 
-            return (train_arr, test_arr, self.data_transf_confg.preprocessor_obj_file_path)
+            return (train,y_train, test, y_test)
 
         except Exception as e:
             raise CustomException(e, sys)
