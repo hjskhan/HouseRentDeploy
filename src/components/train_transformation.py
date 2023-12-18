@@ -3,8 +3,10 @@ import sys
 
 import pandas as pd
 import numpy as np
+
 from sklearn.preprocessing import OrdinalEncoder, FunctionTransformer
 from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
 
 
 from dataclasses import dataclass
@@ -14,8 +16,9 @@ from src.utils import save_object
 
 @dataclass
 class DataTransformerConfig:
-    preprocessor_obj_file_path = os.path.join('artifacts', 'preprocessor.pkl')
+    preprocessor_obj_file_path = os.path.join('artifacts', 'min_max_data.pkl')
 
+@dataclass
 class DataTransformer:
     def __init__(self) -> None:
         self.data_transf_confg = DataTransformerConfig()
@@ -27,7 +30,7 @@ class DataTransformer:
                         'HeatingQC','KitchenQual',
                         'BsmtQual','BsmtCond','BsmtExposure','BsmtFinType1','BsmtFinType2',
                         'CentralAir','Functional','GarageFinish','PavedDrive','PoolQC','Fence',
-                       'FireplaceQu','GarageQual','GarageCond','MSZoning','Utilities','LandContour',
+                       'FireplaceQu','GarageQual','GarageCond','MSZoning','LandContour',
                        'Alley','LotConfig','Condition1','Condition2','Foundation','Electrical']]
             ## First creating a map for different ordinal data:
             ord1 = ['IR3','IR2','IR1','Reg'] #LotShape
@@ -45,7 +48,7 @@ class DataTransformer:
             ord13 = ['No Fireplace','Po','Fa','TA','Gd','Ex'] #FireplaceQu
             ord14 = ['No Garage','Po','Fa','TA','Gd','Ex'] #GarageQual,GarageCond
             ord15 = ['FV','A','RL','RP','RM','RH','I','C (all)']
-            ord16 = ['ELO','NoSeWa','NoSewr','AllPub']
+            # ord16 = ['ELO','NoSeWa','NoSewr','AllPub']
             ord17 = ['Low','HLS','Bnk','Lvl']
             ord18 = ['None','Grvl','Pave']
             ord19 = ['CulDSac','Corner','Inside','FR2','FR3']
@@ -54,13 +57,12 @@ class DataTransformer:
             ord22 = ['FuseP','FuseA','FuseF','Mix','SBrkr']
             # Creating Categories
             categories = [ord1,ord2,ord3,ord3,ord3,ord3,ord4,ord4,ord5,ord6,ord6,ord7,ord8,ord9,
-                        ord10,ord11,ord12,ord13,ord14,ord14,ord15,ord16,ord17,ord18,ord19,
+                        ord10,ord11,ord12,ord13,ord14,ord14,ord15,ord17,ord18,ord19,
                         ord20,ord20,ord21,ord22]
             # Setting up OrdinalEncoder
             ordenc = OrdinalEncoder(categories=categories)
             ord_enc = ordenc.fit_transform(data_ord_enc)    
             data_ord_enc = pd.DataFrame(ord_enc,columns=data_ord_enc.columns)
-
             for i in data_ord_enc.columns:
                 data[i] = data_ord_enc[i].values
             # We have fixed the ordinal data
@@ -102,7 +104,7 @@ class DataTransformer:
             for i in continuous_cols:
                 mode = data[i].mode()[0]
                 data[i] = data[i].fillna(value=mode)
-
+            # taking care to fill nans if any still present
             return data
         except Exception as e:
             raise CustomException(e, sys)
@@ -112,16 +114,14 @@ class DataTransformer:
             cont = ['LotFrontage', 'LotArea','MasVnrArea','BsmtFinSF1','BsmtFinSF2','BsmtUnfSF','TotalBsmtSF',
                     'firstFlrSF','scndFlrSF','GrLivArea','GarageArea','WoodDeckSF','OpenPorchSF',
                     'EnclosedPorch','ScreenPorch']
-            # First we drop ID and SalePrice from data
-            data.drop(['Id'],axis=1,inplace=True)
+            # First we drop ID from data
+            # Already dropped before applying(calling function)
             ##### Log Transformation
             # max_target = data['SalePrice'].max()
             # min_target = data['SalePrice'].min()
             data[cont] = np.log1p(data[cont])
             data['SalePrice'] = np.log1p(data['SalePrice'])
-            # min_SP_train = data['SalePrice'].min()
-            # max_SP_train = data['SalePrice'].max()
-            ##### Standard Scaler Transformation:
+          
             min_val_train,max_val_train = [],[]
             # MinMaxScaler:
             for column in data.columns:
@@ -130,6 +130,17 @@ class DataTransformer:
                 max_val = data[column].max()
                 max_val_train.append(max_val)
                 data[column] = ((data[column] - min_val) / (max_val - min_val))
+
+            #We have log trasformed,scaled and encoded the Data 
+            min_max_train = pd.DataFrame({'min':min_val_train,'max':max_val_train}).transpose()
+            min_max_train.columns = data.columns
+            min_max_train.index = ['min','max']
+
+            file_path = self.data_transf_confg.preprocessor_obj_file_path
+            save_object(
+                file_path=file_path, 
+                obj=min_max_train
+            )
             return data
 
 
@@ -141,44 +152,53 @@ class DataTransformer:
             encoding = FunctionTransformer(self.encode)
             filling_Nans = FunctionTransformer(self.fillNANs)
             Standardizing = FunctionTransformer(self.Standardize)
+            imputer = SimpleImputer(strategy='most_frequent')
 
             pipe = Pipeline([
                 ('fillNAns',filling_Nans),
                 ('encode',encoding),
-                ('standardize',Standardizing)
+                ('standardize',Standardizing),
+                ('imputer', imputer)
             ])  
             return pipe
                 
         except Exception as e:
             raise CustomException(e, sys)
 
-    def initiate_transf(self,train_data_path, test_data_path):
+    def initiate_transf(self,train_data_path):
         try:
             train = pd.read_csv(train_data_path)
-            test = pd.read_csv(test_data_path)
+            # test = pd.read_csv(test_data_path)
 
             train = train.rename(columns={'1stFlrSF':'firstFlrSF','2ndFlrSF':'scndFlrSF'})
-            test = test.rename(columns={'1stFlrSF':'firstFlrSF','2ndFlrSF':'scndFlrSF'})
+            # test = test.rename(columns={'1stFlrSF':'firstFlrSF','2ndFlrSF':'scndFlrSF'})
 
+            train.drop(['Id'],axis=1,inplace=True)
+            # test.drop(['Id'],axis=1,inplace=True)
+    
+            col = train.columns
             preprocessor = self.custom_pipe()
-
-            train = preprocessor.fit_transform(train)
-            test = preprocessor.fit_transform(test)
+            
+            train_transformed = preprocessor.fit_transform(train)
+            # test_transformed = preprocessor.fit_transform(test)
+            
+            train = pd.DataFrame(train_transformed, columns=col)
+            # test = pd.DataFrame(test_transformed, columns=col)
 
             y_train = train['SalePrice'] #target Variable
-            y_test = test['SalePrice']
-
+            # y_test = test['SalePrice']
 
             train.drop('SalePrice',axis=1,inplace=True)
-            test.drop('SalePrice',axis=1,inplace=True)
+            # test.drop('SalePrice',axis=1,inplace=True)
 
+            # save_object(
+            #     file_path=self.data_transf_confg.preprocessor_obj_file_path,
+            #     obj=preprocessor
+            # )
 
-            save_object(
-                file_path=self.data_transf_confg.preprocessor_obj_file_path,
-                obj=preprocessor
-            )
-
-            return (train,y_train, test, y_test)
+            return (train,y_train)
 
         except Exception as e:
             raise CustomException(e, sys)
+    
+

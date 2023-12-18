@@ -1,7 +1,7 @@
 import os, sys
 from src.exception import CustomException
 from src.logger import logging
-from src.components.data_transformation import DataTransformer
+from src.components.train_transformation import DataTransformer
 
 import pandas as pd
 import numpy as np
@@ -21,6 +21,8 @@ class DataIngestion:
     def initiate(self):
         try:
             df = pd.read_csv('notebook\data.csv')
+
+            df.drop('Utilities',axis=1, inplace=True) # Utilities was making problem in the code while transformation
 
             os.makedirs(os.path.dirname(self.ingest_config.train_data_path), exist_ok=True)
             df.to_csv(self.ingest_config.raw_data_path, index=False)

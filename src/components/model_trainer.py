@@ -61,8 +61,8 @@ class model_fitting:
                                                 'Random Forest','SVM','GBR'],
                                         'RMSE':rmse,'Accuracy':acc,'Avg CV RMSE':AvgCVRMSE,
                                         'Avg CV Score': AvgCVScore,'R2 Score':R2Score})
-            
-            return model_score
+            best_model = model_score[model_score['RMSE'] == model_score['RMSE'].min()]['Model'].values[0]
+            return best_model
 
         except Exception as e:
             raise CustomException(e, sys)
