@@ -1,0 +1,4 @@
+['OverallQual', 'GrLivArea', 'GarageCars', 'firstFlrSF', 'TotalBsmtSF', 'GarageArea', 'YearBuilt', 'BsmtFinSF1', 'LotArea', 'GarageType']
+
+['OverallQual', 'GrLivArea', 'GarageCars', 'firstFlrSF', 'TotalBsmtSF', 'GarageArea', 'OverallCond', 'BsmtFinSF1', 'CentralAir', 'MSZoning']
+These are the features finalised by our model

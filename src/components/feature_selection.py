@@ -11,7 +11,7 @@ from src.utils import save_object
 
 @dataclass
 class feature_config:
-    fs_file_path = os.path.join('artifacts', 'feature_selector.pkl')
+    fs_file_path = os.path.join('artifacts', 'features.pkl')
 
 class feature_selection:
     def __init__(self) -> None:
@@ -31,7 +31,7 @@ class feature_selection:
 
             save_object(
                 file_path=self.fs_confg.fs_file_path,
-                obj=model
+                obj=feature
             )
             return feature
         except Exception as e:

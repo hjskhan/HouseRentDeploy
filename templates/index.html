@@ -48,9 +48,13 @@
 							</div>
 							<div class="col-md-4">
 								<div class="form-group">
-									<span class="form-label" for="LotArea">Lot Area (sq feet)</span>
-									<input class="form-control" type="number" min="1300" max="215245" id="LotArea" name="LotArea"
-										required="required" placeholder="1300-215245">
+									<span class="form-label" for='CentralAir'>'Central A.C'</span>
+									<select class="form-control" id='CentralAir' name='CentralAir' required="required"
+										placeholder="choose">
+										<option value="Y">Yes</option>
+										<option value="N">No</option>
+									</select>
+									<span class="select-arrow"></span>
 								</div>
 							</div>
 						</div>
@@ -80,16 +84,17 @@
 						<div class="row">
 							<div class="col-md-4">
 								<div class="form-group">
-									<span class="form-label" for="GarageType">Garage location</span>
-									<select class="form-control" id="GarageType" name="GarageType" required="required"
+									<span class="form-label" for="MSZoning">Garage location</span>
+									<select class="form-control" id="MSZoning" name="MSZoning" required="required"
 										placeholder="choose">
-										<option value="0">More than one type of garage</option>
-										<option value="1">Attached to home</option>
-										<option value="2">Basement Garage</option>
-										<option value="3">Built-In (Garage part of house)</option>
-										<option value="4">Car Port</option>
-										<option value="5">Detached from home</option>
-										<option value="6">No Garage</option>
+										<option value="A">Agriculture</option>
+										<option value="C">Commercial</option>
+										<option value="FV">Floating Village Residential</option>
+										<option value="I">Industrial</option>
+										<option value="RH">Residential High Density</option>
+										<option value="RL">Residential Low Density</option>
+										<option value="RP">Residential Low Density Park</option>
+										<option value="RM">Residential Medium Density</option>
 									</select>
 									<span class="select-arrow"></span>
 								</div>
@@ -132,31 +137,22 @@
 						<div class="row">
 							<div class="col-md-4">
 								<div class="form-group">
-									<span class="form-label" for="YearBuilt">Year Built</span>
-									<input class="form-control" type="number" name="YearBuilt" id="datepicker"
-										placeholder="Select Year" required>
+									<span class="form-label" for="OverallCond">Overall Condition</span>
+									<select class="form-control" id="OverallCond" name="OverallCond"
+										required="required">
+										<option value="1">Very Poor</option>
+										<option value="2">Poor</option>
+										<option value="3">Fair</option>
+										<option value="4">Below Average</option>
+										<option value="5">Average</option>
+										<option value="6">Above Average</option>
+										<option value="7">Good</option>
+										<option value="8">Very Good</option>
+										<option value="9">Excellent</option>
+										<option value="10">Very Excellent</option>
+									</select>
 									<span class="select-arrow"></span>
-									<!-- Bootstrap JS -->
-									<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-									<script
-										src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-									<script
-										src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-									<!-- Bootstrap Datepicker JS -->
-									<script
-										src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-
-									<script>
-										$(document).ready(function () {
-											$('#datepicker').datepicker({
-												format: "yyyy",
-												viewMode: "years",
-												minViewMode: "years",
-												startDate: '1872',
-												endDate: '2010'
-											});
-										});
-									</script>
+									
 								</div>
 							</div>
 							<div class="col-md-4">

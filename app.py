@@ -1,59 +1,15 @@
 import numpy as np
 import pandas as pd
 from flask import Flask, request, render_template
-import pickle
+import pickle,os,sys
+from src.components.test_transformtion import input_transformer
+from src.components.inverse_trnfm_pred import inverse_trnsform
+from src.components.predictor import predict
+
+
+from src.utils import load_object
 
 app = Flask(__name__, template_folder="templates")
-model = pickle.load(open('model.pkl', 'rb'))
-
-# Define the log transformation function
-def log_transform(x):
-    return np.log(int(x)+1)
-
-# Define the min-max scaling function
-def min_max_scale(x, min_val, max_val):
-    return (x - min_val) / (max_val - min_val)
-
-# Preprocess the input data
-def preprocess_input(input_data):
-    
-     # Convert relevant columns to integers
-    input_data['OverallQual'] = input_data['OverallQual'].astype(int)
-    input_data['GarageCars'] = input_data['GarageCars'].astype(int)
-    input_data['YearBuilt'] = input_data['YearBuilt'].astype(int)
-    input_data['GarageType'] = input_data['GarageType'].astype(int)
-
-    # Log transform the continuous variables
-    continuous_columns = ['GrLivArea', 'firstFlrSF', 'TotalBsmtSF', 'GarageArea', 'BsmtFinSF1', 'LotArea']
-    
-    input_data[continuous_columns] = input_data[continuous_columns].apply(log_transform)
-
-    # Manual min-max scaling
-    min_vals = {'OverallQual': 1, 'GrLivArea': 5.814131, 'GarageCars': 0, 'firstFlrSF': 5.814131, 'TotalBsmtSF': 0,
-                'GarageArea': 0, 'YearBuilt': 1872, 'BsmtFinSF1': 0, 'LotArea': 7.170888, 'GarageType': 0}
-    max_vals = {'OverallQual': 10, 'GrLivArea': 8.638171, 'GarageCars': 4, 'firstFlrSF': 8.453827, 'TotalBsmtSF': 8.717846,
-                'GarageArea': 7.257708,  'YearBuilt': 2010,'BsmtFinSF1': 8.638525, 'LotArea': 12.279537, 'GarageType': 6}
-    
-    input_data = input_data.apply(lambda x: min_max_scale(x, min_vals[x.name], max_vals[x.name]))
-
-    return input_data
-
-
-# Define the inverse log transformation function
-def inverse_log_transform(x):
-    return np.exp(x) - 1
-
-# Define the inverse min-max scaling function
-def inverse_min_max_scale(x, min_val, max_val):
-    return ((x * (max_val - min_val)) + min_val)
-
-# Reverse the preprocessing transformations for the predicted value
-def reverse_transform(prediction):
-    min_val = 10.460270761075149
-    max_val = 13.534474352733596
-    prediction = inverse_min_max_scale(prediction, min_val, max_val)
-    prediction = round(inverse_log_transform(prediction))
-    return prediction
 
 @app.route('/')
 def home():
@@ -61,12 +17,45 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = request.form.to_dict()
-    df = pd.DataFrame(data, index=[0])
-    preprocessed_data = preprocess_input(df)
-    prediction = model.predict(preprocessed_data[['OverallQual', 'GrLivArea', 'GarageCars', 'firstFlrSF', 'TotalBsmtSF',
-                                                  'GarageArea', 'YearBuilt', 'BsmtFinSF1', 'LotArea', 'GarageType']])
-    prediction = reverse_transform(prediction[0])
+          
+    GrLivArea = int(request.form['GrLivArea'])
+    BsmtFinSF1 = int(request.form['BsmtFinSF1'])
+    CentralAir = request.form['CentralAir']
+    TotalBsmtSF = int(request.form['TotalBsmtSF'])
+    GarageArea = int(request.form['GarageArea'])
+    firstFlrSF = int(request.form['firstFlrSF'])
+    MSZoning = request.form['MSZoning']
+    GarageCars = int(request.form['GarageCars'])
+    OverallQual = int(request.form['OverallQual'])
+    OverallCond = int(request.form['OverallCond'])
+    data = {
+    'OverallQual': [OverallQual],
+    'GrLivArea': [GrLivArea],
+    'TotalBsmtSF': [TotalBsmtSF],
+    'GarageCars': [GarageCars],
+    'GarageArea': [GarageArea],
+    'firstFlrSF': [firstFlrSF],
+    'BsmtFinSF1': [BsmtFinSF1],
+    'MSZoning': [MSZoning],
+    'CentralAir': [CentralAir],
+    'OverallCond': [OverallCond]
+    }
+
+    # data = request.form.to_dict()
+    df = pd.DataFrame(data)
+
+    feature_file_path = os.path.join('artifacts','features.pkl')
+    features  = load_object(feature_file_path)
+    # input transformation
+    input_tranform = input_transformer()
+    trnsfm_df = input_tranform.input_transform_generator(X_test=df, features=features)
+    #predition
+    model_file_path =  os.path.join('artifacts','model.pkl')
+    model  = load_object(model_file_path)
+    prediction = model.predict(trnsfm_df)
+    #inverse transformation
+    prediction = np.round(inverse_trnsform.inverse_transform_generator(prediction[0]))
+
     return render_template('index.html', prediction_text=f"House Price is {prediction}")
 
 if __name__ == "__main__":

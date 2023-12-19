@@ -13,7 +13,7 @@ import pandas as pd
 
 if __name__=='__main__':
     obj = DataIngestion()
-    train_data, test_data = obj.initiate()
+    train_data, test_data = obj.initiate()# these are paths to data
 
     train_transf = DataTransformer()
     X_train,y_train = train_transf.initiate_transf(train_data)
@@ -22,8 +22,10 @@ if __name__=='__main__':
     features = feature_select.feature_selection_generator(data=X_train, y_target=y_train)
     print(features)
 
+
     test_transf = input_transformer()
-    X_test , Y_test= test_transf.input_transform_generator(test_data, features)
+    X_test = test_transf.read_test_data(test_data)
+    X_test , Y_test= test_transf.input_transform_generator(X_test, features)
     
     model_fitter = model_fitting()
     X_train = X_train[features]

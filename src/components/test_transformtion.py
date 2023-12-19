@@ -25,6 +25,7 @@ class input_transformer:
                         'CentralAir','Functional','GarageFinish','PavedDrive','PoolQC','Fence',
                        'FireplaceQu','GarageQual','GarageCond','MSZoning','LandContour',
                        'Alley','LotConfig','Condition1','Condition2','Foundation','Electrical']
+            
             enc = [i for i in enc if i in features]
             
             data_ord_enc = data[enc]
@@ -92,12 +93,17 @@ class input_transformer:
         
         except Exception as e:
             raise CustomException(e, sys)
+    
+    def read_test_data(test_data_path):
+         X_test = pd.read_csv(test_data_path)
+         return X_test
         
-    def input_transform_generator(self, test_data_path, features):
+    def input_transform_generator(self, X_test, features):
         try:      
-            X_test = pd.read_csv(test_data_path)
+            # X_test = pd.read_csv(test_data_path)
             X_test = X_test.rename(columns={'1stFlrSF':'firstFlrSF','2ndFlrSF':'scndFlrSF'})
-            X_test.drop(['Id'],axis=1,inplace=True)
+            if 'Id' in X_test:
+                X_test.drop(['Id'],axis=1,inplace=True)
             #encoding ordinal and nominal data
             X_test = self.encode(X_test, features)
             
